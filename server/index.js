@@ -35,8 +35,7 @@ app.post('/create-store', async (req, res) => {
   const port = getNextPort();
   let adminFolder = 'admin';
 
-  const ec2PublicIp = '54.174.72.90';
-
+  const ec2publicip = process.env.EC2_PUBLIC_IP || '54.174.72.90';
   const compose = `
 version: '3.9'
 services:
@@ -67,7 +66,8 @@ services:
       PS_INSTALL_AUTO: '1'
       PS_HOST_MODE: '1'
       PS_ENABLE_SSL: '0'
-      PS_HANDLE_DYNAMIC_DOMAIN: '1'
+      PS_HANDLE_DYNAMIC_DOMAIN: '0'
+      PS_DOMAIN: ec2publicip:${port}
       PS_LANGUAGE: en
       PS_COUNTRY: US
       PS_FOLDER_ADMIN: ${adminFolder}
@@ -87,20 +87,16 @@ volumes:
 networks:
   ps-net:
     driver: bridge
-`;
+  `;
 
   fs.writeFileSync(path.join(tenantPath, 'docker-compose.yml'), compose);
 
-  await new Promise(resolve => {
-    const proc = spawn('docker-compose', ['-f', `${tenantPath}/docker-compose.yml`, 'up', '-d']);
-    proc.on('close', resolve);
-  });
-
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  spawn('docker-compose', ['-f', `${tenantPath}/docker-compose.yml`, 'up', '-d']);
 
   const containerName = `${tenant}_shop`;
-  let shopUrl = `http://${ec2PublicIp}:${port}`;
+
   let tries = 0;
+  let shopUrl = `http://ec2publicip:${port}`;
   while (tries < 30) {
     try {
       const { data } = await axios.get(shopUrl);
@@ -126,5 +122,5 @@ networks:
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://54.174.72.90:${PORT}`);
+  console.log(`Server running at http://ec2publicip:${PORT}`);
 });
