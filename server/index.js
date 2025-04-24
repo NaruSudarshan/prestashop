@@ -66,7 +66,7 @@ services:
       PS_HOST_MODE: '1'
       PS_ENABLE_SSL: '0'
       PS_HANDLE_DYNAMIC_DOMAIN: '0'
-      PS_DOMAIN: localhost:${port}
+      PS_DOMAIN: 54.174.72.90:${port}
       PS_LANGUAGE: en
       PS_COUNTRY: US
       PS_FOLDER_ADMIN: ${adminFolder}
@@ -95,7 +95,7 @@ networks:
   const containerName = `${tenant}_shop`;
 
   let tries = 0;
-  let shopUrl = `http://localhost:${port}`;
+  let shopUrl = `http://54.174.72.90:${port}`;
   while (tries < 30) {
     try {
       const { data } = await axios.get(shopUrl);
@@ -121,5 +121,5 @@ networks:
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://54.174.72.90:${PORT}`);
 });
