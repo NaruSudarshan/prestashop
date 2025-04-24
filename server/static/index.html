@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrestaShop SaaS</title>
+  <style>
+    body { font-family: sans-serif; background: #f3f3f3; padding: 2rem; }
+    h1 { color: #333; }
+    input, button { padding: 0.5rem; margin: 0.5rem 0; width: 300px; }
+    #output { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>PrestaShop SaaS</h1>
+  <label>Email:</label><br/>
+  <input type="email" id="email" placeholder="admin@example.com" /><br/>
+  <label>Password:</label><br/>
+  <input type="text" id="password" placeholder="YourPassword123" /><br/>
+  <button id="create">Create Store</button>
+
+  <div id="output"></div>
+
+  <script>
+    document.getElementById('create').onclick = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      document.getElementById('output').innerText = "Creating store...";
+      try {
+        const res = await fetch('/create-store', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        document.getElementById('output').innerHTML = `
+          ✅ Store Created!<br/>
+          Store URL: <a href="${data.url}" target="_blank">${data.url}</a><br/>
+          Admin Panel: <a href="${data.admin_url}" target="_blank">${data.admin_url}</a><br/>
+          Email: ${data.admin_email}<br/>
+          Password: ${data.admin_password}
+        `;
+      } catch (err) {
+        document.getElementById('output').innerText = "Error creating store.";
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
